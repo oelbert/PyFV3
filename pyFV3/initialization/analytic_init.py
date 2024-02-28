@@ -1,6 +1,10 @@
 from enum import Enum
 
-from ndsl.comm.communicator import Communicator, CubedSphereCommunicator
+from ndsl.comm.communicator import (
+    Communicator,
+    CubedSphereCommunicator,
+    TileCommunicator,
+)
 from ndsl.grid import GridData
 from ndsl.initialization.allocator import QuantityFactory
 from ndsl.utils import MetaEnumStr
@@ -10,6 +14,7 @@ from pyFV3.dycore_state import DycoreState
 class Cases(Enum, metaclass=MetaEnumStr):
     baroclinic = "baroclinic"
     tropicalcyclone = "tropicalcyclone"
+    rce = "rce"
 
 
 def init_analytic_state(
@@ -61,6 +66,19 @@ def init_analytic_state(
                 hydrostatic=hydrostatic,
                 comm=comm,
             )
+
+        elif analytic_init_case == Cases.rce.value:  # type: ignore
+            import pyFV3.initialization.test_cases.initialize_rce as rce
+
+            assert isinstance(comm, TileCommunicator)
+
+            return rce.init_rce_state(
+                grid_data=grid_data,
+                quantity_factory=quantity_factory,
+                hydrostatic=hydrostatic,
+                comm=comm,
+            )
+
         else:
             raise ValueError(f"Case {analytic_init_case} not implemented")
     else:
