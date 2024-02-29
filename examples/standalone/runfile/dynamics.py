@@ -312,7 +312,7 @@ if __name__ == "__main__":
     for i in range(args.time_step - 1):
         with timestep_timer.clock("mainloop"):
             if rank == 0:
-                print(f"timestep {i+2}")
+                print(f"timestep {i + 2}")
             dycore.step_dynamics(state, timer=timestep_timer)
         times_per_step.append(timestep_timer.times)
         hits_per_step.append(timestep_timer.hits)

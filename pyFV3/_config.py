@@ -2,6 +2,7 @@ import dataclasses
 from typing import Optional, Tuple
 
 import f90nml
+import yaml
 
 from ndsl.namelist import Namelist, NamelistDefaults
 
@@ -380,6 +381,36 @@ class DynamicalCoreConfig:
             fv_sg_adj=namelist.fv_sg_adj,
             n_sponge=namelist.n_sponge,
         )
+
+    @classmethod
+    def from_yaml(cls, yaml_config: str) -> "DynamicalCoreConfig":
+        config = cls()
+        with open(yaml_config, "r") as f:
+            raw_config = yaml.safe_load(f)
+        flat_config = {}
+        for key, value in raw_config.items():
+            if isinstance(value, dict):
+                for subkey, subvalue in value.items():
+                    if subkey in config.__annotations__.keys():
+                        if subkey in flat_config:
+                            if subvalue != flat_config[subkey]:
+                                raise ValueError(
+                                    f"Cannot flatten this config, duplicate keys: {subkey}"
+                                )
+                        flat_config[subkey] = subvalue
+            else:
+                if key == "nx_tile":
+                    flat_config["npx"] = value + 1
+                    flat_config["npy"] = value + 1
+                elif key == "nz":
+                    flat_config["npz"] = value
+                else:
+                    if key in config.__annotations__.keys():
+                        flat_config[key] = value
+        for field in dataclasses.fields(config):
+            if field.name in flat_config.keys():
+                setattr(config, field.name, flat_config[field.name])
+        return config
 
     @property
     def do_dry_convective_adjustment(self) -> bool:
