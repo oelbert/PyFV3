@@ -1,5 +1,5 @@
-from _config import GrayRadiationConfig
-from gray_radiation_standalone import GrayRadSolo
+from ._config import GrayRadiationConfig
+from .gray_radiation_standalone import GrayRadSolo
 
 
 """

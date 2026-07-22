@@ -57,7 +57,7 @@ def gray_radiation(
         # Annual & global mean solar_abs ~ 0.25 * 1367 * ( 1-0.3) ~ 240
         # Earth cross section/total_area = 0.25; 0.3 = Net cloud reflection and atm abs
         if diurnal_cycle:
-            solar_ang[0, 0] = 2 * constants.pi * dt_atmos / 86400.0 + lon[0, 0]
+            solar_ang[0, 0] = 2 * constants.PI * dt_atmos / 86400.0 + lon[0, 0]
             sw_surf[0, 0] = (
                 sw_rad
                 * (1.0 - clouds[0, 0])
@@ -69,7 +69,7 @@ def gray_radiation(
             sw_surf = (
                 sw_rad
                 * (1.0 - clouds)
-                * max(0.0, cos(lat - shift_n * (constants.pi / 180.0)))
+                * max(0.0, cos(lat - shift_n * (constants.PI / 180.0)))
                 * (1.0 - ALBD)
             )
 
@@ -104,11 +104,11 @@ def gray_radiation(
             lw = ur - dr
 
     # Compute net long wave cooling rate:
-    with computation(PARALLEL), interval(...):
+    with computation(PARALLEL), interval(0, -1):
         t_dt[0, 0, 0] = (lw[0, 0, 0] - lw[0, 0, 1]) / (
             CP * rho[0, 0, 0] * delz[0, 0, 0]
         )
-    with computation(PARALLEL):
+    with computation(FORWARD):
         with interval(0, 1):
             olr[0, 0] = ur[0, 0, 0]
         with interval(-1, None):
@@ -134,7 +134,7 @@ class GrayRadiation:
         if config.diurnal_cycle:
             sw_rad = SOLAR_CONSTANT * (1.0 - config.sw_abs)
         else:
-            sw_rad = (1.0 / constants.pi) * SOLAR_CONSTANT * (1.0 - config.sw_abs)
+            sw_rad = (1.0 / constants.PI) * SOLAR_CONSTANT * (1.0 - config.sw_abs)
 
         def make_quantity_2d() -> Quantity:
             return quantity_factory.zeros(

@@ -30,9 +30,8 @@ def save_low_clouds(
     clouds: FloatFieldIJ,
 ):
     if (ql[0, 0, 0] > 1.0e-5 or qi[0, 0, 0] > 2.0e-4) and qa[0, 0, 0] > 1.0e-3:
-        return max(clouds, qa[0, 0, 0])
-    else:
-        return clouds
+        clouds = max(clouds, qa[0, 0, 0])
+    return clouds
 
 
 def get_low_clouds(
